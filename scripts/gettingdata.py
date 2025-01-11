@@ -18,7 +18,7 @@ table_data = soup.find_all('table',id="advanced")
 table_data = table_data[0]
 def tableParser(table_data):
     with open('player_data.csv', 'w', encoding="utf-8") as r:
-        # 1) Write the header row if it exists (<th> cells)
+        #Write the header row if it exists (<th> cells)
         header_row = table_data.find('tr')
         if header_row:
             th_cells = header_row.find_all('th')
@@ -28,7 +28,7 @@ def tableParser(table_data):
                     r.write(header.text.ljust(30))
                 r.write('\n')
 
-        # 2) Now write the data rows (<td> cells)
+        #write the data rows (<td> cells)
         for row in table_data.find_all('tr'):
             td_cells = row.find_all('td')
             if not td_cells:
