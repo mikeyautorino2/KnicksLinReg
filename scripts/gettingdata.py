@@ -46,19 +46,3 @@ with open('output.csv', 'w', encoding='utf-8', newline='') as f:
         writer.writerow(headers)  # Write header row
     writer.writerows(data)  
       # Write data rows
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
