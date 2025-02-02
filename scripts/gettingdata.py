@@ -1,8 +1,7 @@
 from bs4 import BeautifulSoup, Comment
-import pandas as pd
-import time
-import numpy as np
 import requests
+import pandas as pd
+import csv
 
 url = "https://www.basketball-reference.com/leagues/NBA_2025_advanced.html#advanced"
 #Mimick human request header to access data
@@ -16,29 +15,39 @@ response = requests.get(url , headers=HEADERS)
 soup = BeautifulSoup(response.text, "html.parser")
 table_data = soup.find_all('table',id="advanced")
 table_data = table_data[0]
-def tableParser(table_data):
-    with open('player_data.csv', 'w', encoding="utf-8") as r:
-        #Write the header row if it exists (<th> cells)
-        header_row = table_data.find('tr')
-        if header_row:
-            th_cells = header_row.find_all('th')
-            if th_cells:
-                # Write each <th> text, padded for neat spacing
-                for header in th_cells:
-                    r.write(header.text.ljust(30))
-                r.write('\n')
+import csv
 
-        #write the data rows (<td> cells)
-        for row in table_data.find_all('tr'):
-            td_cells = row.find_all('td')
-            if not td_cells:
-                # Skip rows with no <td> (could be empty or another header row)
-                continue
+headers = []
+header_row = table_data.find('tr')  #the first <tr> contains headers
+if header_row:
+    headers = [th.text.strip() for th in header_row.find_all('th')[1:]]#skip rk for formatting 
 
-            for cell in td_cells:
-                r.write(cell.text.ljust(30))
-            r.write('\n')
-tableParser(table_data)
+data = []
+for row in table_data.find_all('tr'):
+    td_cells = row.find_all('td')
+    if not td_cells:
+        # skip rows with no <td> (could be empty or header row)
+        continue
+
+    row_data = []
+    for cell in td_cells:
+        # checking if the <td> contains an <a> tag
+        link = cell.find('a')
+        if link:
+            row_data.append(link.text.strip())  # text from <a> and strip whitespace
+        else:
+            row_data.append(cell.text.strip())  # text from <td> and strip whitespace
+    data.append(row_data)
+
+# Write headers and data to a CSV file
+with open('output.csv', 'w', encoding='utf-8', newline='') as f:
+    writer = csv.writer(f, delimiter=' ')
+    if headers:
+        writer.writerow(headers)  # Write header row
+    writer.writerows(data)  
+      # Write data rows
+
+
 
 
 
